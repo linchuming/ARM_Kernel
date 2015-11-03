@@ -1,0 +1,11 @@
+lab1 : print ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+
+1. program 1.c
+2. arm-unknown-eabi-gcc -c 1.c
+3. arm-unknown-eabi-ld -T preload.ld 1.o -o 1.out
+4. arm-unknown-eabi-objcopy -O binary -S 1.out 1.bin
+5. dd if=1.bin of=/dev/disk
+6. connect the Zedboard
+7. mmcinfo
+8. fatload mmc 0 0x1ff00000 firmware.bin
+9. go 0x1ff00000

@@ -1,0 +1,22 @@
+void start()
+{
+    int (*uart_spin_puts)(const char *) = (void *)0x1ff0000c;
+    //uart_spin_puts("Hello World!\n");
+    int (*sd_dma_spin_read)(unsigned int,unsigned int,unsigned int) = (void*)0x1ff007c0;
+    unsigned int *part2_offset = (unsigned int*)0x1001D6;
+    char * part2 = (char*)0x200000;
+    sd_dma_spin_read((unsigned int)part2,128,*part2_offset);
+    /*
+    if(*part2==0) {
+        uart_spin_puts("0\n");
+    } else {
+        uart_spin_puts("1\n");
+    }
+    */
+    unsigned int * entry_addr = (unsigned int *)part2 + 24;
+    if(*entry_addr == 0x200000) {
+        uart_spin_puts("233\n");
+    }
+    void (*entry)(void) = (void*)(*entry_addr);
+    entry();
+}
