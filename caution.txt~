@@ -1,4 +1,0 @@
-1. ARM 内存4字节或者2字节对齐.
-2. ARM one frame = 4096 bytes 不能跨越两个frame.
-3. dd一次到第二分区时,第二分区的格式会被破坏,在下次dd第二分区时,应该先sudo mkfs -t vfat /dev/sdb2 将第二分区格式设置成FAT32.
-4. 在执行dd之后要执行sync将缓冲区数据写入SD卡中
