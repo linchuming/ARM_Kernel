@@ -1,0 +1,3 @@
+arm-unknown-eabi-gcc -c -O2 mbr.c -nostdlib
+arm-unknown-eabi-ld -T preload.ld mbr.o -o mbr.out
+arm-unknown-eabi-objcopy -O binary -S mbr.out mbr.bin

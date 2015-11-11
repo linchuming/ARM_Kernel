@@ -15,4 +15,4 @@ SECTIONS
 		*(.bss)
 	}
 }
-ENTRY(main)
+

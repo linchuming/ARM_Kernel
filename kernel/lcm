@@ -1,0 +1,2 @@
+arm-unknown-eabi-gcc -c -O2 kernel.c -nostdlib
+arm-unknown-eabi-ld -T kernel.ld kernel.o -o kernel.elf

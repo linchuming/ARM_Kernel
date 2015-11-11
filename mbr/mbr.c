@@ -24,11 +24,13 @@ void start()
 
     uint p_offset = *(uint*)(part2+ph_offset+4);
     uint memsz = *(uint*)(part2+ph_offset+20);
+    uint p_paddr = *(uint*)(part2+ph_offset+12);
+    char* paddr = (char*)p_paddr;
     puts_uint(memsz);
     char * p_data = part2 + p_offset;
     char * entry_data = (char*)entry_addr;
     for(int i = 0;i<memsz;i++) {
-        entry_data[i] = p_data[i];
+        paddr[i] = p_data[i];
         //puts_uint(entry_data[i]);
     } //copy the program code to memory
 
