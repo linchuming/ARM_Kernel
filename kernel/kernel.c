@@ -16,13 +16,19 @@ void test()
 
 int main()
 {
+	/* Wait for UART fifo to flush */
+	sleep(1);
+    /* Initialize and enable UART */
+	uart_init();
+	uart_enable();
+
     uart_spin_puts("Welcome to the kernel on the ARM!\r\n");
     uart_spin_puts("write page success and ready to enable mmu.\r\n");
-    //enable mmu
+    /* enable mmu */
     enable_mmu();
     uart_spin_puts("enable mmu success.\r\n");
 
-    //update pc value to pc+KERN_BASE
+    /* update pc value to pc+KERN_BASE */
     asm volatile(
         "ldr r0, =KERN_BASE\n\t"
         "ldr r1, [r0]\n\t"
