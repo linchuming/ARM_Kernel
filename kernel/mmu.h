@@ -32,18 +32,23 @@ void enable_mmu()
     asm(
         "ldr r1, =table_addr\n\t"
         "ldr r0, [r1]\n\t"
-        "mcr p15,0,r0,c2,c0,0\n\t"
+        "mcr p15,0,r0,c2,c0,0\n\t" //set the TTB
     );
 
     asm(
         "ldr r0, =0x55555555\n\t"
-        "mcr p15,0,r0,c3,c0,0\n\t"
+        "mcr p15,0,r0,c3,c0,0\n\t" //set the DOMAIN
+    );
+
+    asm(
+        "mov r0, #0\n\t"
+        "mcr p15,0,r0,c8,c7,0\n\t" //enable the TLB
     );
 
     asm(
         "mrc p15,0,r0,c1,c0,0\n\t"
         "orr r0,r0,#0x1\n\t"
-        "mcr p15,0,r0,c1,c0,0\n\t"
+        "mcr p15,0,r0,c1,c0,0\n\t" //enable MMU
     );
 
 }
