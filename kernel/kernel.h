@@ -1,5 +1,12 @@
+/*
+    kernel.h
+    Author: cmlin
+*/
+
 #ifndef _KERNEL_H
 #define _KERNEL_H
+
+#define NULL (void*)0
 
 #include "device/type.h"
 #include "device/io.h"
@@ -10,10 +17,10 @@ typedef unsigned int uint;
 
 
 uint KERN_BASE = 0x80000000;
-uint table_addr = 0x4000; //first kernel page
-uint kernel_addr = 0x200000;
+uint table_addr = 0x00004000; //first kernel page
+uint kernel_addr = 0x00200000;
 uint firmware_addr = 0x1ff00000;
-uint invalid_addr = 0x800000;
+uint invalid_addr = 0x00800000;
 
 void puts_uint(u32 num)
 {

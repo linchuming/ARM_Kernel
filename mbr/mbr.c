@@ -26,7 +26,7 @@ void start()
     uint memsz = *(uint*)(part2+ph_offset+20);
     uint p_paddr = *(uint*)(part2+ph_offset+12);
     char* paddr = (char*)p_paddr;
-    puts_uint(memsz);
+    //puts_uint(memsz);
     char * p_data = part2 + p_offset;
     char * entry_data = (char*)entry_addr;
     for(int i = 0;i<memsz;i++) {

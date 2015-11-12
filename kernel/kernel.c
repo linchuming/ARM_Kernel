@@ -1,5 +1,11 @@
+/*
+    kernel.c
+    Author: cmlin
+*/
+
 #include "kernel.h"
 #include "mmu.h"
+#include "memory.h"
 void test();
 
 uint new_pc = 0;
@@ -22,7 +28,7 @@ int main()
 	uart_init();
 	uart_enable();
 
-    uart_spin_puts("Welcome to the kernel on the ARM!\r\n");
+    uart_spin_puts("Welcome to the kernel on ARM cmlin!\r\n");
     uart_spin_puts("write page success and ready to enable mmu.\r\n");
     /* enable mmu */
     enable_mmu();
@@ -41,7 +47,17 @@ int main()
 
 
     //uint new_pc = old_pc + KERN_BASE;
+    //sleep(1);
     test();
+    /* Initialize the memory calloc */
+
+    mem_init();
+
+    char * addr1 = kcalloc(10);
+    puts_uint((uint)addr1);
+
+    char * addr2 = kcalloc(1);
+    puts_uint((uint)addr2);
 
     return 0;
 }
