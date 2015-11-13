@@ -6,7 +6,6 @@
 #include "kernel.h"
 #include "mmu.h"
 #include "memory.h"
-void test();
 
 uint new_pc = 0;
 void test()
@@ -53,11 +52,14 @@ int main()
 
     mem_init();
 
-    char * addr1 = kcalloc(10);
+    char * addr1 = kalloc(10);
     puts_uint((uint)addr1);
 
-    char * addr2 = kcalloc(1);
+    char * addr2 = kalloc(1);
     puts_uint((uint)addr2);
+
+    char* addr3 = kalloc_align(16);
+    puts_uint((uint)addr3);
 
     return 0;
 }

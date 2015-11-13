@@ -26,10 +26,11 @@ void mem_init()
 }
 
 /*
+    char * kalloc(uint)
     The memory calloc unit is 1KB
     The count means you want the number of 1KB
 */
-char * kcalloc(uint count)
+char * kalloc(uint count)
 {
     if(count == 0) return NULL;
     uint size = count * _Ksize;
@@ -65,6 +66,66 @@ char * kcalloc(uint count)
         }
     }
     return res;
+}
+
+/*
+    int kfree(char*,uint)
+*/
+int kfree(char * addr,uint count)
+{
+    if(count==0) return -1;
+    struct run * r = free_head;
+    uint size = count * _Ksize;
+    struct run * n =  (void*)addr;
+    n->size = size;
+    if(n < free_head) {
+        n->next = free_head;
+        if(n + n->size >= n->next) {
+            n->size = n->next->size + (uint)n->next - (uint)n;
+            n->next = n->next->next;
+        }
+        free_head = n;
+    } else {
+        struct run * pre = NULL;
+        while(r < n && r!=NULL) {
+            pre = r;
+            r = r->next;
+        }
+        n->next = r;
+        if(r!=NULL && n+n->size >= r) {
+            n->size = n->next->size + (uint)n->next - (uint)n;
+            n->next = n->next->next;
+        }
+
+        if(pre + pre->size == n) {
+            pre->next = n->next;
+            pre->size += n->size;
+        } else {
+            pre->next = n;
+        }
+    }
+    return 0;
+}
+
+/*
+    char* kalloc_align(uint)
+*/
+char * kalloc_align(uint count)
+{
+    uint n = (count<<1)-1;
+    char * addr = kalloc(n);
+    if(addr==NULL) return addr;
+    uint i = 0;
+    while((uint) (addr+i*_Ksize) - ((uint) (addr+i*_Ksize) >>10) ) i++;
+    if(i) {
+        kfree(addr,i);
+    }
+    if(i+count<n) {
+        char * paddr =  addr + (i+count) * _Ksize;
+        kfree(paddr,n-count-i);
+    }
+
+    return addr+i*_Ksize;
 }
 
 #endif // _MEMORY_H
