@@ -61,5 +61,9 @@ int main()
     char* addr3 = kalloc_align(16);
     puts_uint((uint)addr3);
 
+    kfree(addr2,1);
+
+    uart_spin_puts("show the free memory:\r\n");
+    showFreememory();
     return 0;
 }

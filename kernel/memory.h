@@ -107,16 +107,24 @@ int kfree(char * addr,uint count)
     return 0;
 }
 
+
+
 /*
     char* kalloc_align(uint)
 */
+
+int divmod(uint num,uint n)
+{
+    if(num - ( (num>>n)<<n) ) return 1; else return 0;
+}
+
 char * kalloc_align(uint count)
 {
     uint n = (count<<1)-1;
     char * addr = kalloc(n);
     if(addr==NULL) return addr;
     uint i = 0;
-    while((uint) (addr+i*_Ksize) - ((uint) (addr+i*_Ksize) >>10) ) i++;
+    while(divmod((uint)(addr+i*_Ksize),ilog2(count*_Ksize)) ) i++;
     if(i) {
         kfree(addr,i);
     }
@@ -126,6 +134,18 @@ char * kalloc_align(uint count)
     }
 
     return addr+i*_Ksize;
+}
+
+/*
+    void showFreememory()
+*/
+void showFreememory()
+{
+    struct run * r = free_head;
+    while(r) {
+        puts_uint((uint)r);
+        r = r->next;
+    }
 }
 
 #endif // _MEMORY_H
