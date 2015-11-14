@@ -17,7 +17,7 @@ typedef unsigned int uint;
 
 
 uint KERN_BASE = 0x80000000;
-uint table_addr = 0x00004000; //first kernel page
+uint table_addr = 0x00014000; //first kernel page
 uint kernel_addr = 0x00200000;
 uint firmware_addr = 0x1ff00000;
 uint invalid_addr = 0x00800000;

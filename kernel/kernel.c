@@ -28,7 +28,7 @@ int main()
 	uart_enable();
 
     uart_spin_puts("Welcome to the kernel on ARM cmlin!\r\n");
-    uart_spin_puts("write page success and ready to enable mmu.\r\n");
+    uart_spin_puts("ready to enable mmu.\r\n");
     /* enable mmu */
     enable_mmu();
     uart_spin_puts("enable mmu success.\r\n");
