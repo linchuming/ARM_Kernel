@@ -52,13 +52,13 @@ int main()
 
     mem_init();
 
-    char * addr1 = kalloc(10);
+    char * addr1 = kalloc(1);
     puts_uint((uint)addr1);
 
     char * addr2 = kalloc(1);
     puts_uint((uint)addr2);
 
-    char* addr3 = kalloc_align(16);
+    char* addr3 = kalloc_align(4);
     puts_uint((uint)addr3);
 
     kfree(addr2,1);

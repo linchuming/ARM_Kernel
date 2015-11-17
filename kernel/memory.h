@@ -9,7 +9,7 @@
 
 #define START_ADDR  0x00800000
 #define END_ADDR  0x1FF00000
-#define _Ksize  1024
+#define _Ksize  4096
 
 struct run {
     uint size;
@@ -27,8 +27,8 @@ void mem_init()
 
 /*
     char * kalloc(uint)
-    The memory calloc unit is 1KB
-    The count means you want the number of 1KB
+    The memory calloc unit is 4KB
+    The count means you want the number of 4KB
 */
 char * kalloc(uint count)
 {
@@ -70,6 +70,7 @@ char * kalloc(uint count)
 
 /*
     int kfree(char*,uint)
+    count is the number of 4KB
 */
 int kfree(char * addr,uint count)
 {
@@ -111,6 +112,7 @@ int kfree(char * addr,uint count)
 
 /*
     char* kalloc_align(uint)
+    count is the number
 */
 
 int divmod(uint num,uint n)
