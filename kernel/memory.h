@@ -1,6 +1,7 @@
 /*
     memory.h
     Author: cmlin
+    Email: 13307130255@fudan.edu.cn
 */
 
 #ifndef _MEMORY_H
@@ -8,7 +9,7 @@
 #include "kernel.h"
 
 #define START_ADDR  0x00800000
-#define END_ADDR  0x1FF00000
+#define END_ADDR  0x1F000000
 #define _Ksize  4096
 
 struct run {

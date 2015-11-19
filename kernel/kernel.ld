@@ -15,4 +15,4 @@ SECTIONS
 		*(.bss)
 	}
 }
-ENTRY(main)
+ENTRY(kernel_bootasm)

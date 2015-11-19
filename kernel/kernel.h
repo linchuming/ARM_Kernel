@@ -1,6 +1,7 @@
 /*
     kernel.h
     Author: cmlin
+    Email: 13307130255@fudan.edu.cn
 */
 
 #ifndef _KERNEL_H
