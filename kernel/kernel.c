@@ -47,6 +47,7 @@ void test_mem()
     uart_spin_puts("show the free memory:\r\n");
     showFreememory();
 }
+/* main() the kernel entry */
 int main()
 {
 	/* Wait for UART fifo to flush */
@@ -54,7 +55,6 @@ int main()
     /* Initialize and enable UART */
 	uart_init();
 	uart_enable();
-
     uart_spin_puts("Welcome to the kernel on ARM cmlin!\r\n");
     uart_spin_puts("ready to enable mmu.\r\n");
     /* enable mmu */
@@ -73,21 +73,22 @@ int main()
     );
     /* */
 
-    test_pc();
-
     /* Update sp value */
-    test_sp();
     asm volatile(
         "ldr r0, =KERN_BASE\n\t"
         "ldr r1, [r0]\n\t"
         "add sp, sp, r1\n\t"
+        "isb\n\t"
     );
-    test_sp();
+
+    /* remove map of the lower address 0x0~0x800000 */
+    remove_lower_address();
 
     /* Initialize the memory calloc */
     mem_init();
     /* */
     test_mem();
+
 
     return 0;
 }

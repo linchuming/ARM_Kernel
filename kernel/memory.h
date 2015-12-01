@@ -151,5 +151,17 @@ void showFreememory()
     }
 }
 
+/*
+    void memcpy(void*,void*,uint)
+*/
+void memcpy(void* dest,void* src,uint _size)
+{
+    char* dt = dest;
+    char * sc = src;
+    for(uint i = 0;i < _size; i++) {
+        dt[i] = sc[i];
+    }
+}
+
 #endif // _MEMORY_H
 

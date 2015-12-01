@@ -4,6 +4,9 @@
     Email: 13307130255@fudan.edu.cn
 */
 
+#ifndef _MMU_H
+#define _MMU_H
+
 #include "kernel.h"
 #define TTB_FLAG 0x5E2
 #define FRIST_TTB_VAL 0x155E6
@@ -16,14 +19,24 @@ void write_page(uint va,uint pa,uint table_addr)
 {
     uint t = va >> 20;
     table_addr += (t<<2);
-    *(uint*)table_addr = ((pa>>20)<<20) + TTB_FLAG;
+    out32(table_addr,((pa>>20)<<20) + TTB_FLAG);
     /*
     AP = 10;
     domain = 1111;
     1:0 = 10
     */
 }
+
 uint section_range = 0x100000;
+void remove_lower_address()
+{
+    for(uint i=0;i<invalid_addr;i+=section_range) {
+        uint t = i >> 20;
+        out32(table_addr+(t<<2),0);
+    }
+    invalidate_TLB();
+}
+
 void create_first_page()
 {
     uint count = 0;
@@ -37,8 +50,8 @@ void create_first_page()
     for(uint i=SP_TOP;i<SP_ADDR;i+=section_range) {
         write_page(i+KERN_BASE,i,table_addr);
     }
-    write_page(firmware_addr+KERN_BASE,firmware_addr,table_addr);
-    *(uint*)table_addr = FRIST_TTB_VAL;
+
+    out32(table_addr,FRIST_TTB_VAL);
 
 }
 void enable_mmu()
@@ -56,18 +69,15 @@ void enable_mmu()
         "mcr p15,0,r0,c3,c0,0\n\t"
     );
 
-    /*
-    asm volatile(
-        "mov r0, #0\n\t"
-        "mcr p15,0,r0,c8,c7,0\n\t" //enable the TLB
-    );
-    */
     /* Enable MMU */
     asm volatile(
         "mrc p15,0,r0,c1,c0,0\n\t"
         "orr r0,r0,#0x1\n\t"
         "mcr p15,0,r0,c1,c0,0\n\t"
+        "isb\n\t"
     );
+
+    invalidate_TLB();
 
     /* Enable SCU */
     out32(SCU_CONTROL,0x3);
@@ -83,8 +93,13 @@ void enable_mmu()
         "mrc p15,0,r0,c1,c0,0\n\t"
         "orr r0,r0,r1\n\t"
         "mcr p15,0,r0,c1,c0,0\n\t"
+        "isb\n\t"
     );
 
-    out32(L2CACHE_CONTROL,0X1); //Enable L2 cache
+    /* Enable L2 cache */
+    out32(L2CACHE_CONTROL,0X1);
 
 }
+
+#endif
+
