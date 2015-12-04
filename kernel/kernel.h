@@ -16,6 +16,7 @@
 #include "device/sd-zynq7000.h"
 
 #include "asm.h"
+#include "mode.h"
 
 typedef unsigned int uint;
 

@@ -47,9 +47,11 @@ void create_first_page()
     for(uint i=0;i<invalid_addr;i+=section_range) {
         write_page(i+KERN_BASE,i,table_addr);
     }
+
     for(uint i=SP_TOP;i<SP_ADDR;i+=section_range) {
         write_page(i+KERN_BASE,i,table_addr);
     }
+
 
     out32(table_addr,FRIST_TTB_VAL);
 

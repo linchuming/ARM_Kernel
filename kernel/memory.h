@@ -10,7 +10,7 @@
 
 #define START_ADDR  0x00800000
 #define END_ADDR  0x1F000000
-#define _Ksize  4096
+#define _Ksize  4096 //4KB
 
 struct run {
     uint size;

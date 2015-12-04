@@ -6,10 +6,13 @@
 
 #include "kernel.h"
 #include "mmu.h"
+#include "pool.h"
 #include "memory.h"
+#include "handler.h"
+uint addr;
 
 uint new_pc = 0;
-void test_pc()
+void read_pc()
 {
     uart_spin_puts("The new pc is ");
     asm volatile(
@@ -20,7 +23,7 @@ void test_pc()
     uart_spin_puts("\r\n");
 }
 uint sp = 0;
-void test_sp()
+void read_sp()
 {
     uart_spin_puts("The sp is ");
     asm volatile(
@@ -47,6 +50,20 @@ void test_mem()
     uart_spin_puts("show the free memory:\r\n");
     showFreememory();
 }
+
+void test_pool()
+{
+    init_pool(2);
+    char* addr1 = new_slab();
+    puts_uint((uint)addr1);
+    char * addr2 = new_slab();
+    puts_uint((uint)addr2);
+    free_slab(addr1);
+    addr1 = new_slab();
+    puts_uint((uint)addr1);
+    free_pool();
+}
+
 /* main() the kernel entry */
 int main()
 {
@@ -57,38 +74,39 @@ int main()
 	uart_enable();
     uart_spin_puts("Welcome to the kernel on ARM cmlin!\r\n");
     uart_spin_puts("ready to enable mmu.\r\n");
+
     /* enable mmu */
     enable_mmu();
     uart_spin_puts("enable mmu success.\r\n");
 
     /* Update pc value to pc+KERN_BASE */
-    asm volatile(
-        "ldr r0, =KERN_BASE\n\t"
-        "ldr r1, [r0]\n\t"
-        "add pc, pc, r1\n\t"
-        "nop\n\t"
-        "nop\n\t"
-        "nop\n\t"
-        "nop\n\t"
-    );
+    update_pc();
+    uart_spin_puts("update the pc value.\r\n");
     /* */
 
     /* Update sp value */
-    asm volatile(
-        "ldr r0, =KERN_BASE\n\t"
-        "ldr r1, [r0]\n\t"
-        "add sp, sp, r1\n\t"
-        "isb\n\t"
-    );
-
+    update_sp();
+    uart_spin_puts("update the sp value.\r\n");
     /* remove map of the lower address 0x0~0x800000 */
     remove_lower_address();
 
     /* Initialize the memory calloc */
     mem_init();
-    /* */
-    test_mem();
 
+    /* Initialize Interrupt*/
+    interrupt_init();
+    uart_spin_puts("Initialize Interrupt success.\r\n");
 
+    //test_pool();
+    asm volatile(
+        "swi 0x1\n\t"
+        "isb\n\t"
+        ::: "r0"
+    );
+
+    uart_spin_puts("Kernel Ends.\r\n");
+
+    /* Holding the kernel */
+    while(1) ;
     return 0;
 }
