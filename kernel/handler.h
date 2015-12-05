@@ -8,6 +8,7 @@
 #define _HEADLER_H
 #include "kernel.h"
 #include "memory.h"
+#include "syscall.h"
 
 void interrupt_init()
 {
@@ -38,12 +39,30 @@ void read_cpsr()
     puts_uint(cpsr);
     uart_spin_puts("\r\n");
 }
-void SWI_interrupt(uint num)
+void SWI_interrupt(uint num,uint *reg)
 {
     switch(num) {
-        case 1:
+        case 0x1:
             uart_spin_puts("You are in the SWI handler.\r\n");
             break;
+        case 0x2:
+            asm volatile(
+                "mrs r0,spsr\n\t"
+                "ldr r1, =0xFFFFFFF0\n\t"
+                "and r0, r0, r1\n\t"
+                "orr r0, r0, #2\n\t"
+                "msr spsr, r0\n\t"
+                ::: "r0","r1"
+            );
+            uart_spin_puts("Change the spsr.\r\n");
+            break;
+
+        case SWI_SYS_CALL:
+        {
+            syscall_handler(reg);
+        }
+            break;
+
 
     }
 }

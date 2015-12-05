@@ -1,3 +1,5 @@
 1. cp15 中 c1寄存器说明 p1710
 2. ARM core register 说明 p1144
 3. CPSR p1148
+4. Overview of exception entry p1170
+5. Pseudocode description of taking the Supervisor Call exception p1209

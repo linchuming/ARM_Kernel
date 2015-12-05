@@ -18,6 +18,8 @@
 #include "asm.h"
 #include "mode.h"
 
+#define SWI_SYS_CALL 0x100
+
 typedef unsigned int uint;
 
 

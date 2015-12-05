@@ -65,6 +65,7 @@ void test_pool()
 }
 
 /* main() the kernel entry */
+char * str;
 int main()
 {
 	/* Wait for UART fifo to flush */
@@ -98,11 +99,14 @@ int main()
     uart_spin_puts("Initialize Interrupt success.\r\n");
 
     //test_pool();
+
     asm volatile(
-        "swi 0x1\n\t"
+        "ldr r0, =1000\n\t"
+        "swi =SWI_SYS_CALL\n\t"
         "isb\n\t"
-        ::: "r0"
+        ::: "r0","r1"
     );
+    read_cpsr();
 
     uart_spin_puts("Kernel Ends.\r\n");
 
