@@ -21,10 +21,18 @@ void interrupt_init()
         ::: "r0"
     );
     */
-    /* copy the vector table to the address 0x0 */
     irq_mask_open();
-    extern char vector_table[],vector_end[];
-    memcpy((void*)0,vector_table,vector_table-vector_end);
+    extern char vector_table[];
+    /* set the vector address by c12 */
+    asm volatile(
+        "ldr r0, =vector_table\n\t"
+        "ldr r1, =0x80000000\n\t"
+        "add r0, r0, r1\n\t"
+        "mcr p15, 0, r0, c12, c0, 0\n\t"
+        "isb\n\t"
+        ::: "r0","r1"
+    );
+    //memcpy((void*)0,vector_table,vector_end-vector_table);
 
 }
 uint cpsr = 0;
@@ -41,9 +49,9 @@ void read_cpsr()
 }
 void SWI_interrupt(uint num,uint *reg)
 {
+    uart_spin_puts("You are in the SWI handler.\r\n");
     switch(num) {
         case 0x1:
-            uart_spin_puts("You are in the SWI handler.\r\n");
             break;
         case 0x2:
             asm volatile(

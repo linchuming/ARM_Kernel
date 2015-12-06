@@ -64,8 +64,13 @@ void test_pool()
     free_pool();
 }
 
+void debug()
+{
+  puts_uint(in32(0x15000));
+  uart_spin_getbyte();
+}
+
 /* main() the kernel entry */
-char * str;
 int main()
 {
 	/* Wait for UART fifo to flush */
@@ -75,40 +80,39 @@ int main()
 	uart_enable();
     uart_spin_puts("Welcome to the kernel on ARM cmlin!\r\n");
     uart_spin_puts("ready to enable mmu.\r\n");
-
     /* enable mmu */
     enable_mmu();
     uart_spin_puts("enable mmu success.\r\n");
-
     /* Update pc value to pc+KERN_BASE */
     update_pc();
     uart_spin_puts("update the pc value.\r\n");
     /* */
-
     /* Update sp value */
     update_sp();
     uart_spin_puts("update the sp value.\r\n");
-    /* remove map of the lower address 0x0~0x800000 */
-    remove_lower_address();
-
-    /* Initialize the memory calloc */
-    mem_init();
 
     /* Initialize Interrupt*/
     interrupt_init();
     uart_spin_puts("Initialize Interrupt success.\r\n");
-
+    /* remove map of the lower address 0x0~0x800000 */
+    remove_lower_address();
+    uart_spin_puts("remove the lower address.\r\n");
+    /* Initialize the memory calloc */
+    mem_init();
+    uart_spin_puts("Initialize memory allocation.\r\n");
+    //test_mem();
     //test_pool();
+    //debug();
 
     asm volatile(
         "ldr r0, =1000\n\t"
-        "swi =SWI_SYS_CALL\n\t"
+        "swi 0x100\n\t"
         "isb\n\t"
         ::: "r0","r1"
     );
-    read_cpsr();
 
     uart_spin_puts("Kernel Ends.\r\n");
+
 
     /* Holding the kernel */
     while(1) ;

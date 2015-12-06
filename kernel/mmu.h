@@ -8,7 +8,13 @@
 #define _MMU_H
 
 #include "kernel.h"
-#define TTB_FLAG 0x5E2
+#define TTB_TYPE_SECT 0x2
+#define TTB_SECT_BUFFERABLE (1<<2)
+#define TTB_SECT_CACHEABLE (1<<3)
+#define TTB_SECT_XN (1<<4)
+#define TTB_DOMAIN(x) ((x) << 5)
+#define TTB_SECT_AP (1<<10)
+#define TTB_FLAG (TTB_TYPE_SECT|TTB_SECT_BUFFERABLE|TTB_DOMAIN(15)|TTB_SECT_AP)
 #define FRIST_TTB_VAL 0x155E6
 #define SP_ADDR 0x20000000
 #define SP_TOP 0x1F000000
@@ -19,11 +25,11 @@ void write_page(uint va,uint pa,uint table_addr)
 {
     uint t = va >> 20;
     table_addr += (t<<2);
-    out32(table_addr,((pa>>20)<<20) + TTB_FLAG);
+    out32(table_addr,((pa>>20)<<20) | TTB_FLAG);
     /*
-    AP = 10;
-    domain = 1111;
-    1:0 = 10
+    AP[11:10] = 01;
+    domain[8:5] = 1111;
+    bit[1:0] = 10
     */
 }
 
@@ -32,7 +38,7 @@ void remove_lower_address()
 {
     for(uint i=0;i<invalid_addr;i+=section_range) {
         uint t = i >> 20;
-        out32(table_addr+(t<<2),0);
+        out32(table_addr+(t<<2)+KERN_BASE,TTB_FLAG|TTB_SECT_XN);
     }
     invalidate_TLB();
 }
@@ -53,8 +59,7 @@ void create_first_page()
     }
 
 
-    out32(table_addr,FRIST_TTB_VAL);
-
+    //out32(table_addr,FRIST_TTB_VAL);
 }
 void enable_mmu()
 {
@@ -104,4 +109,3 @@ void enable_mmu()
 }
 
 #endif
-

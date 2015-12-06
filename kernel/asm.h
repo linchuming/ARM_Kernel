@@ -14,10 +14,10 @@ static inline void invalidate_TLB()
     asm volatile(
         "mov r0, #0\n\t"
         "mcr p15,0,r0,c8,c5,0\n\t"
-        "isb\n\t"
         "mcr p15,0,r0,c8,c6,0\n\t"
-        "isb\n\t"
         "mcr p15,0,r0,c8,c7,0\n\t"
+        "mcr p15, 0, r0, c7, c5, 6\n\t" //flush BTAC/BTB
+        "mcr p15, 0, r0, c7, c10, 4\n\t" //drain write buffer
         "isb\n\t"
     );
 }

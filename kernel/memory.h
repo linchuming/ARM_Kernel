@@ -154,14 +154,29 @@ void showFreememory()
 /*
     void memcpy(void*,void*,uint)
 */
+
 void memcpy(void* dest,void* src,uint _size)
 {
     char* dt = dest;
-    char * sc = src;
+    char* sc = src;
     for(uint i = 0;i < _size; i++) {
         dt[i] = sc[i];
     }
 }
 
+/*
+void memcpy(void* dest,void* src,uint _size)
+{
+    uint addr = (uint)dest;
+    uint * data = src;
+    _size = _size >> 2;
+    for(uint i = 0;i<_size; i++ ) {
+      puts_uint(i);
+      puts_uint(addr);
+      puts_uint(data[i]);
+      uart_spin_getbyte();
+      out32(addr+4*i,data[i]);
+    }
+}
+*/
 #endif // _MEMORY_H
-

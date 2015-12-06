@@ -5,7 +5,7 @@
  */
 .globl vector_table
 .globl vector_end
-.equ  stubs_offset,  0x200000
+.equ  stubs_offset,  0x0
 .globl kernel_bootasm
 
 
@@ -13,7 +13,6 @@
 .globl IRQ_handler
 .globl PrefetchAbortHandler
 .globl DataAbortHandler
-
 .text
 .arm
 
@@ -25,7 +24,7 @@ vector_table:
 	b PrefetchAbortHandler + stubs_offset //PrefetchAbortHandler
 	b DataAbortHandler + stubs_offset //DataAbortHandler
 	NOP
-	b IRQ_handler + stubs_offset //IRQ interrupt
+	b  IRQ_handler + stubs_offset  //IRQ interrupt
 	NOP //FIQ interrupt
 vector_end:
 
@@ -67,4 +66,3 @@ kernel_bootasm:
 	ldr	sp, =0x20000000
 	movs	fp, sp
 	bl	main
-
