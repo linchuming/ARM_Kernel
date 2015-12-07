@@ -15,6 +15,9 @@
 #include "device/uart.h"
 #include "device/sd-zynq7000.h"
 
+#define KERN_BASE  0x80000000
+#define KERN_TTB  0x00014000
+
 #include "asm.h"
 #include "mode.h"
 
@@ -22,9 +25,6 @@
 
 typedef unsigned int uint;
 
-
-uint KERN_BASE = 0x80000000;
-uint table_addr = 0x00014000; //first kernel page
 uint kernel_addr = 0x00200000;
 uint invalid_addr = 0x00800000;
 

@@ -54,7 +54,7 @@ void remove_lower_address()
 {
     for(uint i=0;i<invalid_addr;i+=section_range) {
         uint t = i >> 20;
-        out32(table_addr+(t<<2)+KERN_BASE,TTB_FLAG|TTB_SECT_XN);
+        out32(KERN_TTB+(t<<2)+KERN_BASE,TTB_FLAG|TTB_SECT_XN);
     }
     invalidate_TLB();
 }
@@ -63,15 +63,15 @@ void create_first_page()
 {
     uint count = 0;
     for(uint i=0;count<4096;i+=section_range) {
-        write_page(i,i,table_addr);
+        write_page(i,i,KERN_TTB);
         count++;
     }
     for(uint i=0;i<invalid_addr;i+=section_range) {
-        write_page(i+KERN_BASE,i,table_addr);
+        write_page(i+KERN_BASE,i,KERN_TTB);
     }
 
     for(uint i=SP_TOP;i<SP_ADDR;i+=section_range) {
-        write_page(i+KERN_BASE,i,table_addr);
+        write_page(i+KERN_BASE,i,KERN_TTB);
     }
 
 }
@@ -80,8 +80,7 @@ void enable_mmu()
     create_first_page();
     /* Set the TTB */
     asm volatile(
-        "ldr r1, =table_addr\n\t"
-        "ldr r0, [r1]\n\t"
+        "ldr r0, =0x00014000\n\t"
         "mcr p15,0,r0,c2,c0,0\n\t"
     );
     /* Set the DOMAIN */

@@ -51,6 +51,7 @@ void SWI_interrupt(uint num,uint *reg)
     uart_spin_puts("You are in the SWI handler.\r\n");
     switch(num) {
         case 0x1:
+            puts_uint((uint)reg);
             break;
         case 0x2:
             asm volatile(

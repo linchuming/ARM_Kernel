@@ -29,18 +29,17 @@ vector_table:
 vector_end:
 
 SWI_handler:
-    stmfd sp!, {r0-r12, lr}
+    stmfd sp!,{r0-r12,lr}
     ldr r0, [lr, #-4]
     bic r0, r0, #0xFF000000 //Get the SWI interrupt id
-    mov r1, sp
+    mov r12, sp
 
     bl SWI_interrupt
 
-    ldmfd sp!, {r0-r12, pc}^
+    ldmfd sp!, {r0-r12,pc}^
 
 IRQ_handler:
     stmfd sp!, {r0-r12, lr}
-    ldr r0, [lr, #-4]
 
     bl IRQ_interrupt
 
@@ -48,7 +47,6 @@ IRQ_handler:
 
 PrefetchAbortHandler:
     stmfd sp!, {r0-r12, lr}
-    ldr r0, [lr, #-4]
 
     bl PrefetchAbort_interrupt
 
@@ -56,7 +54,6 @@ PrefetchAbortHandler:
 
 DataAbortHandler:
     stmfd sp!, {r0-r12, lr}
-    ldr r0, [lr, #-4]
 
     bl DataAbortHandler_interrupt
 

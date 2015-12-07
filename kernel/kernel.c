@@ -57,7 +57,19 @@ void test_mem()
 
 void debug()
 {
-    puts_uint(in32(0x15000));
+    pkb_num = 0;
+    char* ttb = new_ttb();
+    struct mem_list * list = (struct mem_list*)kalloc(1);
+    list->addr = (uint)kalloc(1);
+    puts_uint(list->addr);
+    struct mem_list * p = list;
+    p = p + 4;
+    p->addr = (uint)kalloc(1);
+    puts_uint(p->addr);
+    p = p + 4;
+    p->addr = 0;
+    write_process_page(ttb,0x400000,list);
+    free_process_memory(ttb);
     uart_spin_getbyte();
 }
 
@@ -92,13 +104,13 @@ int main()
     mem_init();
     uart_spin_puts("Initialize memory allocation.\r\n");
 
-    //debug();
+    debug();
 
     asm volatile(
         "ldr r0, =1000\n\t"
-        "swi 0x100\n\t"
+        "swi 0x1\n\t"
         "isb\n\t"
-        ::: "r0","r1"
+        ::: "r0"
     );
 
     uart_spin_puts("Kernel Ends.\r\n");

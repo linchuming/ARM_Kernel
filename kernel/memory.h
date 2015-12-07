@@ -164,11 +164,11 @@ void memcpy(void* dest,void* src,uint _size)
     }
 }
 
-void memset(void* dest,char i,uint _size)
+void memset(void* dest,char p,uint _size)
 {
     char *dt = dest;
     for(uint i = 0;i < _size; i++) {
-        dt[i] = i;
+        dt[i] = p;
     }
 }
 

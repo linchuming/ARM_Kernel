@@ -25,20 +25,20 @@ static inline void invalidate_TLB()
 static inline void update_pc()
 {
     asm volatile(
-        "ldr r0, =KERN_BASE\n\t"
-        "ldr r1, [r0]\n\t"
-        "add pc, pc, r1\n\t"
+        "ldr r0, =0x80000000\n\t"
+        "add pc, pc, r0\n\t"
         "isb\n\t"
+        :::"r0"
     );
 }
 
 static inline void update_sp()
 {
     asm volatile(
-        "ldr r0, =KERN_BASE\n\t"
-        "ldr r1, [r0]\n\t"
-        "add sp, sp, r1\n\t"
+        "ldr r0, =0x80000000\n\t"
+        "add sp, sp, r0\n\t"
         "isb\n\t"
+        :::"r0"
     );
 }
 

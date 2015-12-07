@@ -21,8 +21,10 @@ struct mem_list {
 char* new_ttb()
 {
     char * ttb =  kalloc_align(4);
+
     memset(ttb,0,4*4096);
-    char* kernel_ttb = (char*)table_addr+KERN_BASE;
+    char* kernel_ttb = (char*)(KERN_TTB+KERN_BASE);
+
     memcpy(ttb+2*4096,kernel_ttb+2*4096,2*4096);
     return ttb;
 }
@@ -33,6 +35,7 @@ int write_process_page(char* ttb_addr,uint start_va,struct mem_list* list)
     uint va = start_va;
     while(p->addr) {
         char * l1_addr = (char*) ((uint)ttb_addr + ((va>>20)<<2));
+
         if(in32((uint)l1_addr) == 0) {
             char* new_l2 = new_kb();
             if(new_l2 == NULL) return 0;
@@ -40,6 +43,7 @@ int write_process_page(char* ttb_addr,uint start_va,struct mem_list* list)
             out32((uint)l1_addr,(uint)new_l2 | TTB_DOMAIN(DOMAIN_USER) | TTB_TYPE_PTE);
         }
         char * l2_addr = (char*)( (in32((uint)l1_addr) & PTE_L2ADDR_MASK) + ( ((va<<12)>>24)<<2) ) ;
+        //puts_uint((uint)l2_addr);
         out32((uint)l2_addr,p->addr | PTE_SMALL_BUFFERABLE | PTE_TYPE_SMALL);
         va+=PAGESIZE;
         p+=NEXT_LIST;
@@ -49,6 +53,7 @@ int write_process_page(char* ttb_addr,uint start_va,struct mem_list* list)
 
 void free_process_memory(char* ttb_addr)
 {
+
     uint ttb = (uint)ttb_addr;
     for(uint i=0; i < 2*PAGESIZE; i+=4) {
         if(in32(ttb+i)) {
