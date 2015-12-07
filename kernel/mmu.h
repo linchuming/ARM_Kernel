@@ -8,14 +8,28 @@
 #define _MMU_H
 
 #include "kernel.h"
+#define DOMAIN_KERN 1
+#define DOMAIN_USER 0
+#define DOMAIN_FAIL 15
+/*
+  level 1 descriptor
+*/
+#define TTB_TYPE_PTE 0x1
 #define TTB_TYPE_SECT 0x2
 #define TTB_SECT_BUFFERABLE (1<<2)
 #define TTB_SECT_CACHEABLE (1<<3)
 #define TTB_SECT_XN (1<<4)
 #define TTB_DOMAIN(x) ((x) << 5)
 #define TTB_SECT_AP (1<<10)
-#define TTB_FLAG (TTB_TYPE_SECT|TTB_SECT_BUFFERABLE|TTB_DOMAIN(15)|TTB_SECT_AP)
-#define FRIST_TTB_VAL 0x155E6
+#define TTB_FLAG (TTB_TYPE_SECT|TTB_SECT_BUFFERABLE|TTB_DOMAIN(DOMAIN_KERN)|TTB_SECT_AP)
+/*
+  level 2 descriptor
+*/
+#define PTE_TYPE_SMALL 0x2
+#define PTE_TYPE_EXT 0x3
+#define PTE_SMALL_BUFFERABLE (1<<2)
+#define PTE_SMALL_CAHCEABLE (1<<3)
+
 #define SP_ADDR 0x20000000
 #define SP_TOP 0x1F000000
 
@@ -28,7 +42,7 @@ void write_page(uint va,uint pa,uint table_addr)
     out32(table_addr,((pa>>20)<<20) | TTB_FLAG);
     /*
     AP[11:10] = 01;
-    domain[8:5] = 1111;
+    domain[8:5] = 0001;
     bit[1:0] = 10
     */
 }
@@ -58,8 +72,6 @@ void create_first_page()
         write_page(i+KERN_BASE,i,table_addr);
     }
 
-
-    //out32(table_addr,FRIST_TTB_VAL);
 }
 void enable_mmu()
 {
@@ -72,7 +84,7 @@ void enable_mmu()
     );
     /* Set the DOMAIN */
     asm volatile(
-        "ldr r0, =0x55555555\n\t"
+        "ldr r0, =0x7\n\t"
         "mcr p15,0,r0,c3,c0,0\n\t"
     );
 

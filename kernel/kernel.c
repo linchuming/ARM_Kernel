@@ -49,35 +49,25 @@ void test_mem()
 
     uart_spin_puts("show the free memory:\r\n");
     showFreememory();
+    kfree(addr1,1);
+    kfree(addr3,4);
 }
 
-void test_pool()
-{
-    init_pool(2);
-    char* addr1 = new_slab();
-    puts_uint((uint)addr1);
-    char * addr2 = new_slab();
-    puts_uint((uint)addr2);
-    free_slab(addr1);
-    addr1 = new_slab();
-    puts_uint((uint)addr1);
-    free_pool();
-}
 
 void debug()
 {
-  puts_uint(in32(0x15000));
-  uart_spin_getbyte();
+    puts_uint(in32(0x15000));
+    uart_spin_getbyte();
 }
 
 /* main() the kernel entry */
 int main()
 {
-	/* Wait for UART fifo to flush */
-	sleep(1);
+	  /* Wait for UART fifo to flush */
+	  sleep(1);
     /* Initialize and enable UART */
-	uart_init();
-	uart_enable();
+	  uart_init();
+	  uart_enable();
     uart_spin_puts("Welcome to the kernel on ARM cmlin!\r\n");
     uart_spin_puts("ready to enable mmu.\r\n");
     /* enable mmu */

@@ -9,67 +9,101 @@
 #include "kernel.h"
 #include "memory.h"
 /*
-    We define a slap size is 64Bytes.
+    The pool can alloc 64Bytes and 1KB memory.
 */
 #define SLABSIZE 64
+#define KBSIZE 1024
+#define PAGESIZE 4096
 
 struct slab {
     struct slab* next;
 };
 
-char* pool_addr = NULL;
-uint p_num = 0;
+struct pkb {
+    struct pkb* next;
+};
+uint pkb_num = 0;
+uint slab_num = 0;
 
-struct slab* pool_header;
-uint max_num = 0;
+struct pkb* kb_header;
+struct slab* slab_header;
 
-void init_pool(uint _num)
+/*
+    slab(64Bytes) memory allocation
+*/
+
+int slab_init()
 {
-    pool_addr = kalloc(_num);
-    p_num = _num;
-
-    pool_header = (struct slab*)pool_addr;
-    max_num = _num << 6; // (_num << 12) >> (ilog2(SLABSIZE))
-
-    struct slab* p = pool_header;
-    for(uint i=0;i<max_num-1;i++) {
-        p->next = (struct slab*) ((int)p + SLABSIZE);
-        p = p->next;
+    char* new_page = kalloc(1);
+    if(new_page == NULL) return 0;
+    slab_header = NULL;
+    struct slab* pre;
+    for(uint i = 0; i < PAGESIZE; i+= SLABSIZE) {
+        pre = slab_header;
+        slab_header = (struct slab*)(new_page+i);
+        slab_header->next = pre;
+        slab_num++;
     }
-    p->next = NULL;
-
-}
-
-void free_pool()
-{
-    kfree(pool_addr,p_num);
+    return 1;
 }
 
 char* new_slab()
 {
-    if(pool_header==NULL) return NULL;
-
-    struct slab* res = pool_header;
-    pool_header = pool_header->next;
-    return (char*)res;
+    if(slab_num==0) {
+        if(!slab_init()) return NULL;
+    }
+    char* res = (char*)slab_header;
+    slab_header = slab_header->next;
+    slab_num--;
+    return res;
 }
 
 void free_slab(char* addr)
 {
-    struct slab* p = (struct slab*)addr;
-    if(pool_header==NULL||p < pool_header) {
-        p->next = pool_header;
-        pool_header = p;
-    } else {
-        struct slab* q = pool_header;
-        while(p > q->next && q->next!=NULL) {
-            q = q->next;
-        }
-        p->next = q->next;
-        q->next = p;
+    struct slab* pre;
+    pre = slab_header;
+    slab_header = (struct slab*)addr;
+    slab_header->next = pre;
+    slab_num++;
+}
+/*
+    1KB memory allocation
+*/
+
+int pkb_init()
+{
+    char* new_page = kalloc(1);
+    if(new_page == NULL) return 0;
+    kb_header = NULL;
+    struct pkb* pre;
+    for(uint i = 0; i < PAGESIZE; i+= KBSIZE) {
+        pre = kb_header;
+        kb_header = (struct pkb*)(new_page+i);
+        kb_header->next = pre;
+        pkb_num++;
     }
+    return 1;
 }
 
+char* new_kb()
+{
+    if(pkb_num==0) {
+        if(!pkb_init()) return NULL;
+    }
+    char* res = (char*)kb_header;
+    kb_header = kb_header->next;
+    pkb_num--;
+    return res;
+}
+
+void free_kb(char* addr)
+{
+    struct pkb* pre;
+    pre = kb_header;
+    kb_header = (struct pkb*)addr;
+    kb_header->next = pre;
+    pkb_num++;
+}
 
 
 
