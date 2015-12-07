@@ -2,7 +2,7 @@
 	kernel.S
 	Author: cmlin
 	Email: 13307130255@fudan.edu.cn
- */
+*/
 .globl vector_table
 .globl vector_end
 .equ  stubs_offset,  0x0

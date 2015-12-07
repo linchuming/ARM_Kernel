@@ -9,6 +9,7 @@
 #include "pool.h"
 #include "memory.h"
 #include "handler.h"
+#include "l2_page.h"
 uint addr;
 
 uint new_pc = 0;
@@ -90,8 +91,7 @@ int main()
     /* Initialize the memory calloc */
     mem_init();
     uart_spin_puts("Initialize memory allocation.\r\n");
-    //test_mem();
-    //test_pool();
+
     //debug();
 
     asm volatile(

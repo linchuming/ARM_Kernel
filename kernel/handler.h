@@ -10,6 +10,7 @@
 #include "memory.h"
 #include "syscall.h"
 
+extern char vector_table[];
 void interrupt_init()
 {
     /*
@@ -22,7 +23,6 @@ void interrupt_init()
     );
     */
     irq_mask_open();
-    extern char vector_table[];
     /* set the vector address by c12 */
     asm volatile(
         "ldr r0, =vector_table\n\t"
@@ -32,7 +32,6 @@ void interrupt_init()
         "isb\n\t"
         ::: "r0","r1"
     );
-    //memcpy((void*)0,vector_table,vector_end-vector_table);
 
 }
 uint cpsr = 0;
