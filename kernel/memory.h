@@ -8,8 +8,8 @@
 #define _MEMORY_H
 #include "kernel.h"
 
-#define START_ADDR  0x00800000
-#define END_ADDR  0x1F000000
+#define START_ADDR  (0x00800000 + KERN_BASE)
+#define END_ADDR  (0x1F000000 + KERN_BASE)
 #define _Ksize  4096 //4KB
 
 struct run {
@@ -17,13 +17,14 @@ struct run {
     struct run * next;
 };
 
-struct run * free_head = NULL;
-
+static struct run * free_head = NULL;
+static spinlock_t mem_lock;
 void mem_init()
 {
     free_head = (struct run*)START_ADDR;
     free_head->size = END_ADDR - START_ADDR;
     free_head->next = NULL;
+    spinlock_init(&mem_lock);
 }
 
 /*
@@ -33,11 +34,14 @@ void mem_init()
 */
 char * kalloc(uint count)
 {
-    if(count == 0) return NULL;
+    if(count == 0) {
+        return NULL;
+    }
+    spin_lock(&mem_lock);
     uint size = count * _Ksize;
     char * res = NULL;
     struct run * r = free_head;
-    struct run * pre;
+    struct run * pre = NULL;
 
     while(r) {
         if(r->size < size) {
@@ -50,7 +54,7 @@ char * kalloc(uint count)
             struct run * n = (void*)addr;
             n->size = n_size;
             n->next = r->next;
-            if(r==free_head) {
+            if((uint)r==(uint)free_head) {
                 free_head = n;
             } else {
                 pre->next = n;
@@ -58,7 +62,7 @@ char * kalloc(uint count)
             break;
         } else {
             res = (char*)r;
-            if(r==free_head) {
+            if((uint)r == (uint)free_head) {
                 free_head = r->next;
             } else {
                 pre->next = r->next;
@@ -66,6 +70,7 @@ char * kalloc(uint count)
             break;
         }
     }
+    release_lock(&mem_lock);
     return res;
 }
 
@@ -76,36 +81,38 @@ char * kalloc(uint count)
 int kfree(char * addr,uint count)
 {
     if(count==0) return -1;
+    spin_lock(&mem_lock);
     struct run * r = free_head;
     uint size = count * _Ksize;
     struct run * n =  (void*)addr;
     n->size = size;
-    if(n < free_head) {
+    if((uint)n < (uint)free_head) {
         n->next = free_head;
-        if(n + n->size >= n->next) {
+        if((uint)n + n->size >= (uint)n->next) {
             n->size = n->next->size + (uint)n->next - (uint)n;
             n->next = n->next->next;
+
         }
         free_head = n;
     } else {
         struct run * pre = NULL;
-        while(r < n && r!=NULL) {
+        while((uint)r < (uint)n && r!=NULL) {
             pre = r;
             r = r->next;
         }
         n->next = r;
-        if(r!=NULL && n+n->size >= r) {
-            n->size = n->next->size + (uint)n->next - (uint)n;
-            n->next = n->next->next;
+        if(r!=NULL && (uint)n+n->size >= (uint)r) {
+            n->size = r->size + (uint)n->next - (uint)n;
+            n->next = r->next;
         }
-
-        if(pre + pre->size == n) {
+        if((uint)pre + pre->size >= (uint)n) {
             pre->next = n->next;
             pre->size += n->size;
         } else {
             pre->next = n;
         }
     }
+    release_lock(&mem_lock);
     return 0;
 }
 
@@ -144,11 +151,14 @@ char * kalloc_align(uint count)
 */
 void showFreememory()
 {
+    uart_spin_puts("show the free memory:\r\n");
     struct run * r = free_head;
     while(r) {
         puts_uint((uint)r);
+        puts_uint(r->size);
         r = r->next;
     }
+    uart_spin_puts("show end.\r\n");
 }
 
 /*
@@ -157,18 +167,18 @@ void showFreememory()
 
 void memcpy(void* dest,void* src,uint _size)
 {
-    char* dt = dest;
+    uint dt = (uint)dest;
     char* sc = src;
     for(uint i = 0;i < _size; i++) {
-        dt[i] = sc[i];
+        *(volatile unsigned char*)(dt+i) = sc[i];
     }
 }
 
 void memset(void* dest,char p,uint _size)
 {
-    char *dt = dest;
+    uint dt = (uint)dest;
     for(uint i = 0;i < _size; i++) {
-        dt[i] = p;
+        *(volatile unsigned char*)(dt+i) = p;
     }
 }
 

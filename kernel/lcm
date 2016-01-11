@@ -1,5 +1,5 @@
-arm-unknown-eabi-gcc -c kernel.S -o asm.o -fpic -march=armv7-a
-arm-unknown-eabi-gcc -c -O2 kernel.c -fpic -Wall -fno-builtin -nostdinc -nostdlib -march=armv7-a
-arm-unknown-eabi-ld -T kernel.ld asm.o kernel.o -o kernel.elf
+arm-unknown-eabi-gcc -c kernel.S -o asm.o -fPIC -march=armv7-a
+arm-unknown-eabi-gcc -c -O2 kernel.c -fPIC -Wall -fno-builtin -nostdinc -nostdlib -march=armv7-a
+arm-unknown-eabi-ld -T kernel.ld  asm.o kernel.o -o kernel.elf
 rm asm.o
 rm kernel.o

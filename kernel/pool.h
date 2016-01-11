@@ -9,9 +9,9 @@
 #include "kernel.h"
 #include "memory.h"
 /*
-    The pool can alloc 64Bytes and 1KB memory.
+    The pool can alloc SLABSIZE Bytes and KBSIZE Bytes memory.
 */
-#define SLABSIZE 64
+#define SLABSIZE 128
 #define KBSIZE 1024
 #define PAGESIZE 4096
 
@@ -22,11 +22,12 @@ struct slab {
 struct pkb {
     struct pkb* next;
 };
-uint pkb_num = 0;
-uint slab_num = 0;
+static uint pkb_num = 0;
+static uint slab_num = 0;
+static spinlock_t pool_lock;
 
-struct pkb* kb_header;
-struct slab* slab_header;
+static struct pkb* kb_header;
+static struct slab* slab_header;
 
 /*
     slab(64Bytes) memory allocation
@@ -40,7 +41,7 @@ int slab_init()
     struct slab* pre;
     for(uint i = 0; i < PAGESIZE; i+= SLABSIZE) {
         pre = slab_header;
-        slab_header = (struct slab*)(new_page+i);
+        slab_header = (struct slab*)((uint)new_page+i);
         slab_header->next = pre;
         slab_num++;
     }
@@ -78,7 +79,7 @@ int pkb_init()
     struct pkb* pre;
     for(uint i = 0; i < PAGESIZE; i+= KBSIZE) {
         pre = kb_header;
-        kb_header = (struct pkb*)(new_page+i);
+        kb_header = (struct pkb*)((uint)new_page+i);
         kb_header->next = pre;
         pkb_num++;
     }
@@ -87,22 +88,26 @@ int pkb_init()
 
 char* new_kb()
 {
+    spin_lock(&pool_lock);
     if(pkb_num==0) {
         if(!pkb_init()) return NULL;
     }
     char* res = (char*)kb_header;
     kb_header = kb_header->next;
     pkb_num--;
+    release_lock(&pool_lock);
     return res;
 }
 
 void free_kb(char* addr)
 {
+    spin_lock(&pool_lock);
     struct pkb* pre;
     pre = kb_header;
     kb_header = (struct pkb*)addr;
     kb_header->next = pre;
     pkb_num++;
+    release_lock(&pool_lock);
 }
 
 

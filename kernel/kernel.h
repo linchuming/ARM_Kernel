@@ -15,9 +15,11 @@
 #include "device/uart.h"
 #include "device/sd-zynq7000.h"
 
-#define KERN_BASE  0x80000000
-#define KERN_TTB  0x00014000
+#define KERN_BASE   0x80000000
+#define KERN_TTB    0x00104000
+#define KERN_CPU1_TTB 0x00108000
 
+#include "spinlock.h"
 #include "asm.h"
 #include "mode.h"
 
@@ -25,8 +27,15 @@
 
 typedef unsigned int uint;
 
-uint kernel_addr = 0x00200000;
-uint invalid_addr = 0x00800000;
+#define kernel_addr     0x00200000
+#define invalid_addr    0x00800000
+#define SP_ADDR         0x20000000
+#define SP_TOP          0x1F000000
+#define SVC_SP_ADDR     0x1FF00000
+#define IRQ_SP_ADDR     0x1FE00000
+#define CPU1_SP_ADDR    0x1FD00000
+#define CPU1_SVC_SP_ADDR    0x1FC00000
+#define CPU1_IRQ_SP_ADDR    0x1FB00000
 
 void puts_uint(u32 num)
 {
@@ -65,4 +74,54 @@ uint ilog2(uint x)
     return (x+(x>>16)) & m5;
 }
 
+
+static uint new_pc = 0;
+void read_pc()
+{
+    uart_spin_puts("The new pc is ");
+    asm volatile(
+        "str pc, [%0]\n\t"
+        :: "r"(&new_pc)
+    );
+    puts_uint(new_pc);
+    uart_spin_puts("\r\n");
+}
+
+static uint sp = 0;
+void read_sp()
+{
+    uart_spin_puts("The sp is ");
+    asm volatile(
+        "str sp, [%0]\n\t"
+        :: "r"(&sp)
+    );
+    puts_uint(sp);
+    uart_spin_puts("\r\n");
+}
+
+static uint cpsr = 0;
+void read_cpsr()
+{
+    uart_spin_puts("The cpsr is ");
+    asm volatile(
+        "mrs r0, cpsr\n\t"
+        "str r0,[%0]\n\t"
+        :: "r"(&cpsr)
+        : "r0"
+    );
+    puts_uint(cpsr);
+}
+
+static uint spsr = 0;
+void read_spsr()
+{
+    uart_spin_puts("The spsr is ");
+    asm volatile(
+        "mrs r0, spsr\n\t"
+        "str r0,[%0]\n\t"
+        :: "r"(&spsr)
+        : "r0"
+    );
+    puts_uint(spsr);
+}
 #endif

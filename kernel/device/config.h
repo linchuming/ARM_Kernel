@@ -12,6 +12,7 @@
 #define _DTB_H
 
 #include "type.h"
+#include "../spinlock.h"
 
 /* PHYSICAL BASE ADDRESS AS MACROS */
 /* See Zynq7000 APSoC TRM (Xilinx UG585) for details. */

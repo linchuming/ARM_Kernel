@@ -20,8 +20,10 @@ void uart_spin_puts(const char *str);
 
 void uart_spin_puts(const char *str)
 {
+	spin_lock(&puts_lock);
 	for (; *str != '\0'; ++str)
 		uart_spin_putbyte((unsigned char)*str);
+	release_lock(&puts_lock);
 }
 
 #endif

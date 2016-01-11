@@ -1,7 +1,7 @@
 
 SECTIONS
 {
-	. = 0x200000;
+	. = 0x400000;
 	.text . :{
 		*(.text)
 	}
@@ -14,6 +14,5 @@ SECTIONS
 	.bss . : {
 		*(.bss)
 	}
-
 }
-ENTRY(kernel_bootasm)
+ENTRY(init_start)

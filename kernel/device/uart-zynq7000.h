@@ -156,6 +156,8 @@ void uart_disable(void);
 unsigned char uart_spin_getbyte(void);
 void uart_spin_putbyte(unsigned char byte);
 
+static spinlock_t puts_lock;
+
 void uart_init(void)
 {
 	/* Disable interrupts */
@@ -181,6 +183,8 @@ void uart_init(void)
 	/* Set CR Value */
 	out32(UART_BASE + UART_OFFSET_CR,
 		UART_CR_RX_DIS | UART_CR_TX_DIS | UART_CR_STOPBRK);
+
+	spinlock_init(&puts_lock);
 }
 
 void uart_enable(void)

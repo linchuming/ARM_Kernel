@@ -32,8 +32,6 @@
 #define PTE_L2ADDR_MASK 0xFFFFFC00
 #define PTE_PA_MASK 0xFFFFF000
 
-#define SP_ADDR 0x20000000
-#define SP_TOP 0x1F000000
 
 #define L2CACHE_CONTROL 0xF8F02100
 #define SCU_CONTROL 0xF8F00000
@@ -49,13 +47,15 @@ void write_page(uint va,uint pa,uint table_addr)
     */
 }
 
-uint section_range = 0x100000;
+#define section_range  0x100000
 void remove_lower_address()
 {
+    asm volatile("isb");
     for(uint i=0;i<invalid_addr;i+=section_range) {
         uint t = i >> 20;
-        out32(KERN_TTB+(t<<2)+KERN_BASE,TTB_FLAG|TTB_SECT_XN);
+        out32(KERN_TTB+(t<<2)+KERN_BASE,0);
     }
+    asm volatile("isb");
     invalidate_TLB();
 }
 
@@ -66,11 +66,7 @@ void create_first_page()
         write_page(i,i,KERN_TTB);
         count++;
     }
-    for(uint i=0;i<invalid_addr;i+=section_range) {
-        write_page(i+KERN_BASE,i,KERN_TTB);
-    }
-
-    for(uint i=SP_TOP;i<SP_ADDR;i+=section_range) {
+    for(uint i=0;i<SP_ADDR;i+=section_range) {
         write_page(i+KERN_BASE,i,KERN_TTB);
     }
 
@@ -78,17 +74,22 @@ void create_first_page()
 void enable_mmu()
 {
     create_first_page();
+    asm volatile (
+        "mov r0, #0\n\t"
+        "mcr p15, 0, r0, c8, c3, 0\n\t"
+    );
     /* Set the TTB */
     asm volatile(
-        "ldr r0, =0x00014000\n\t"
+        "mov r0, %0\n\t"
         "mcr p15,0,r0,c2,c0,0\n\t"
+        ::"r"(KERN_TTB)
     );
     /* Set the DOMAIN */
     asm volatile(
-        "ldr r0, =0x7\n\t"
+        "mov r0, #0x7\n\t"
         "mcr p15,0,r0,c3,c0,0\n\t"
     );
-
+    invalidate_TLB();
     /* Enable MMU */
     asm volatile(
         "mrc p15,0,r0,c1,c0,0\n\t"
@@ -102,23 +103,28 @@ void enable_mmu()
     /* Enable SCU */
     out32(SCU_CONTROL,0x3);
 
+}
+
+void enable_cache()
+{
     /*
         Enable data cache, instruction caches, prediction
         Enable data cache, set the c1 bit[2] to 1
         Enable instruction caches, set the c1 bit[12] to 1
         Enable branch prediction, set the c1 bit[11] to 1
     */
+    uint tmp = 0x1804;
     asm volatile(
-        "ldr r1, =0x1804\n\t"
+        "mov r1, %0\n\t"
         "mrc p15,0,r0,c1,c0,0\n\t"
         "orr r0,r0,r1\n\t"
         "mcr p15,0,r0,c1,c0,0\n\t"
         "isb\n\t"
+        :: "r"(tmp)
     );
 
     /* Enable L2 cache */
     out32(L2CACHE_CONTROL,0X1);
-
 }
 
 #endif
