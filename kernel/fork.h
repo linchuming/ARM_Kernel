@@ -36,6 +36,7 @@ void _fork(uint* reg,uint* tmp) //only copy 1 page text and 1 page stack
     pcb[pcb_id].context.spsr = proc[cpu_id].context.spsr;
     pcb[pcb_id].context.r[0] = 0;
     reg[0] = pid_num;
+    strcpy(pcb[pcb_id].name,pcb[proc[cpu_id].pcb_id].name);
 
     struct mem_list * list = (struct mem_list*)kalloc(1);
     struct mem_list * p = list;
@@ -52,7 +53,7 @@ void _fork(uint* reg,uint* tmp) //only copy 1 page text and 1 page stack
     p->addr = (uint)addr - KERN_BASE;
     p = (struct mem_list *)((uint)p + NEXT_LIST);
     p->addr = 0;
-    
+
     write_process_page(ttb,end_sp,list);
     kfree((char*)list,1);
 

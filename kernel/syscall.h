@@ -9,6 +9,10 @@
 #include "kernel.h"
 #include "fork.h"
 #include "getline.h"
+#include "exec.h"
+#include "ps.h"
+#include "ls.h"
+#include "wait.h"
 
 /*
     Define the system call interface:
@@ -16,10 +20,15 @@
     other: Function Parameter
 */
 
-#define PUTS 0x10
-#define FORK 0x20
-#define GETLINE 0x30
-#define PUTS_UINT 0x40
+#define PUTS        0x10
+#define FORK        0x20
+#define GETLINE     0x30
+#define PUTS_UINT   0x40
+#define EXEC        0x50
+#define LS          0x60
+#define PS          0x70
+#define WAIT        0x80
+#define PEXIT        0x100
 
 static uint tmp[10];
 static spinlock_t syscall_lock;
@@ -64,6 +73,31 @@ void syscall_handler(uint* reg)
         case PUTS_UINT:
         {
             puts_uint(reg[1]);
+            break;
+        }
+        case EXEC:
+        {
+            _exec(reg,(char*)reg[1]);
+            break;
+        }
+        case LS:
+        {
+            _ls();
+            break;
+        }
+        case PS:
+        {
+            _ps();
+            break;
+        }
+        case PEXIT:
+        {
+            _exit(reg);
+            break;
+        }
+        case WAIT:
+        {
+            _wait(reg[1]);
             break;
         }
         default:

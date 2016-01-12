@@ -1,3 +1,0 @@
-arm-unknown-eabi-gcc -c -O2 1.c -nostdlib
-arm-unknown-eabi-ld -T preload.ld 1.o -o 1.out
-arm-unknown-eabi-objcopy -O binary -S 1.out 1.bin

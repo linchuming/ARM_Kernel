@@ -39,6 +39,7 @@ void create_init()
     pcb[pcb_id].context.spsr = usr_cpsr;
     pcb[pcb_id].pid = 1000;
     pcb[pcb_id].state = RUNABLE;
+    strcpy(pcb[pcb_id].name,"init");
 
     struct mem_list * list = (struct mem_list*)kalloc(1);
     struct mem_list * p = list;

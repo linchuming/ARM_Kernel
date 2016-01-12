@@ -11,6 +11,7 @@
 #define UNUSE 0
 #define RUNABLE 1
 #define RUNNING 2
+#define EXIT    3
 
 #define CPU_NUM 2
 #define MAX_NUM_PROCESS 128
@@ -25,6 +26,7 @@ struct processor {
     uint ttb_addr;
     uint pcb_id;
     uint pid;
+    char name[24];
     struct proc_context context;
 };
 

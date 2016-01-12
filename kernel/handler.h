@@ -140,7 +140,7 @@ void IRQ_interrupt(uint *reg)
 void PrefetchAbort_interrupt(uint * reg)
 {
     uart_spin_puts("You are in the PrefetchAbort handler.\r\n");
-    puts_uint(reg[12]);
+    puts_uint(reg[13]);
     puts_uint(getCPUId());
     uart_spin_getbyte();
 }
@@ -148,7 +148,7 @@ void PrefetchAbort_interrupt(uint * reg)
 void DataAbortHandler_interrupt(uint * reg)
 {
     uart_spin_puts("You are in the DataAbort handler.\r\n");
-    puts_uint(reg[12]);
+    puts_uint(reg[13]);
     puts_uint(getCPUId());
     uart_spin_getbyte();
 }

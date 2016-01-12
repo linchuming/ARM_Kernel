@@ -14,6 +14,7 @@
 #include "device/config.h"
 #include "device/uart.h"
 #include "device/sd-zynq7000.h"
+#include "device/elf.h"
 
 #define KERN_BASE   0x80000000
 #define KERN_TTB    0x00104000
@@ -123,5 +124,46 @@ void read_spsr()
         : "r0"
     );
     puts_uint(spsr);
+}
+
+void strcpy(char* dst, char* src)
+{
+    char* _src = src;
+    char* _dst = dst;
+    while(*_src!='\0') {
+        *_dst = *_src;
+        _dst++;
+        _src++;
+    }
+    *_dst = '\0';
+}
+uint strlen(char * str)
+{
+    char * _str = str;
+    uint len = 0;
+    while(*_str!='\0') {
+        _str++;
+        len++;
+    }
+    return len;
+}
+int strcmp(char* str1, char* str2)
+{
+    if(strlen(str1)==strlen(str2)) {
+        char * _str1 = str1;
+        char * _str2 = str2;
+        uint len = strlen(str1);
+        for(uint i = 0;i<len;i++) {
+            if(*_str1 != *_str2) {
+                return 1;
+            } else {
+                _str1++;
+                _str2++;
+            }
+        }
+    } else {
+        return 1;
+    }
+    return 0;
 }
 #endif

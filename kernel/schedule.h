@@ -100,6 +100,7 @@ void timer_schedule(uint * reg)
         ::"r"(m_proc->ttb_addr)
         : "r0"
     );
+    invalidate_TLB();
     //irq_enable();
     asm volatile(
         "msr spsr, %0\n\t"
@@ -114,6 +115,10 @@ void timer_schedule(uint * reg)
 void reset_schedule(uint * reg)
 {
     struct processor * m_proc = &proc[getCPUId()] ;
+    if(m_proc->state == EXIT) {
+        pcb[m_proc->pcb_id].state = EXIT;
+        //puts_uint(m_proc->pcb_id);
+    }
     m_proc->state = UNUSE;
     //uart_spin_puts("CPU:"); puts_uint(getCPUId());
     struct processor * m_new = schedule();

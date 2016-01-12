@@ -7,14 +7,20 @@
 #ifndef _STRING_H
 #define _STRING_H
 
-unsigned int strlen(const char* str)
+#include "sys.h"
+
+unsigned int strlen(const char* _str)
 {
     unsigned int len = 0;
-    if(str[len]!='\0') len++;
+    while(*_str!='\0') {
+        //puts_uint(*_str);
+        len++;
+        _str++;
+    }
     return len;
 }
 
-int strcmp(const char* str1,const char* str2)
+int strcmp(char* str1,char* str2)
 {
     unsigned int len1,len2;
     len1 = strlen(str1);

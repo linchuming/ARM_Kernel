@@ -13,6 +13,7 @@
 #include "cpu1.h"
 #include "process.h"
 #include "load_init.h"
+#include "filesystem.h"
 
 void test_mem()
 {
@@ -114,7 +115,7 @@ int kernel_main()
     load_init();
     create_init();
 
-    puts_uint((uint)&proc[getCPUId()]);
+    file_system_init();
     /* Start the cpu1 */
     cpu1_start();
 
