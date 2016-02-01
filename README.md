@@ -17,7 +17,7 @@ Simple ARM_Kernel
 
 1. Memory Management Unit(MMU)
 
-2. Memory allocation
+2. Memory allocation(first fit algorithm)
 
 3. Two level page table
 
@@ -27,8 +27,10 @@ Simple ARM_Kernel
 
 6. Start CPU1 & Spinlock
 
-7. init process & console
+7. Processes schedule(round-robin algorithm)
 
-8. Simple file management
+8. init process & console
 
-9. Some system calls such as fork(),exec(),puts(),getline(),ls(),ps(),wait()
+9. Simple file management
+
+10. Some system calls such as fork(),exec(),puts(),getline(),ls(),ps(),wait()
