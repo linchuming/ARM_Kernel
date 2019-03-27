@@ -3,8 +3,6 @@ Simple ARM_Kernel
 
 基于ARM架构的操作系统
 
-欢迎参考! 参考记得添加出处~
-
 ## 代码使用环境
 该OS运行在基于ARMv7a的ZYNQ7000的开发板上
 
